@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PyUpload.it File Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            color: #fff;
+        }
+
+        .file-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #45474B;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .file-container img, .file-container audio {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+            border-radius: 20px;
+        }
+
+        .download-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 30px;
+            background-color: #4caf50;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 20px;
+            border: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .download-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>PyUpload.it</h1>
+    <div class="file-container">
+        <h2>File: {{ filename }}</h2>
+        {% set file_extension = filename.split('.')[-1].lower() %}
+        {% if file_extension in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+            <img src="{{ url_for('get_uploaded_file', filename=file_id + '_' + filename) }}" alt="Uploaded Image">
+        {% elif file_extension in ['mp3', 'ogg', 'wav'] %}
+            <audio controls>
+                <source src="{{ url_for('get_uploaded_file', filename=file_id + '_' + filename) }}" type="audio/{{ file_extension }}">
+                Your browser does not support the audio element.
+            </audio>
+        {% else %}
+            <p>Preview not available for this file type.</p>
+        {% endif %}
+        <a class="download-button" href="{{ url_for('get_uploaded_file', filename=file_id + '_' + filename) }}" download>Download File</a>
+    </div>
+</body>
+</html>

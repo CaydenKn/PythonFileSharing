@@ -1,0 +1,208 @@
+<!-- Inside admin_dashboard.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Admin Dashboard - PyUpload.it</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            color: #4caf50;
+        }
+
+        .file-list {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        .file-actions a {
+            color: #4caf50;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .edit-button, .delete-button {
+            cursor: pointer;
+        }
+
+        /* Popup Styling */
+        .edit-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .edit-form {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-form input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #444;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .edit-form button[type="submit"], .edit-form button[type="button"] {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 20px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-form button[type="submit"]:hover, .edit-form button[type="button"]:hover {
+            background-color: #45a049;
+        }
+
+        .chart-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <div class="file-list">
+        {% for file in files %}
+            <div class="file-item">
+                <span>{{ file }}</span>
+                <div class="file-actions">
+                    <a href="{{ url_for('uploaded_file', file_id=file.split('_')[0], filename=file.split('_')[1]) }}">View</a>
+                    <a class="edit-button" href="#" onclick="openEditForm('{{ file }}')">Edit</a>
+                    <a class="delete-button" href="{{ url_for('delete_file', file_name=file) }}">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Edit Form Popup -->
+    <div class="edit-popup" id="edit-popup">
+    <div class="edit-form" id="edit-form">
+        <form action="{{ url_for('edit_file', file_name='') }}" method="POST">
+            <input type="text" id="edit-input" name="new_filename" required>
+            <div class="button-group">
+                <button type="submit">Save</button>
+                <button type="button" onclick="closeEditForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Chart Container -->
+    <div class="chart-container">
+        <canvas id="fileTypeChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Fetch the file type statistics from your backend
+        const fileStats = {
+            jpg: 120,
+            png: 80,
+            mp3: 40,
+            pdf: 30,
+            txt: 15,
+            docx: 10,
+            zip: 8,
+            other: 5,
+        };
+
+        const labels = Object.keys(fileStats);
+        const data = Object.values(fileStats);
+
+        // Create and update the chart
+        const ctx = document.getElementById('fileTypeChart').getContext('2d');
+        const fileTypeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'File Types',
+                    data: data,
+                    backgroundColor: '#4caf50',
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'File Count'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'File Types'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+
+    <script>
+        function openEditForm(fileName) {
+            var editPopup = document.getElementById('edit-popup');
+            var editForm = document.getElementById('edit-form');
+            var editInput = document.getElementById('edit-input');
+            editInput.value = fileName;
+            editPopup.style.display = 'flex';
+            editInput.focus();
+        }
+
+        function closeEditForm() {
+            var editPopup = document.getElementById('edit-popup');
+            editPopup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
